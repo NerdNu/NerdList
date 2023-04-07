@@ -1,17 +1,5 @@
 package nu.nerd.nerdlist;
 
-import org.bukkit.ChatColor;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandSender;
-import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.configuration.file.YamlConfiguration;
-import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.EventPriority;
-import org.bukkit.event.Listener;
-import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.plugin.java.JavaPlugin;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -23,6 +11,18 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeSet;
+
+import org.bukkit.ChatColor;
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandSender;
+import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.plugin.java.JavaPlugin;
 
 /**
  * The NerdList plugin.
@@ -66,7 +66,8 @@ public class NerdList extends JavaPlugin implements Listener {
                     return true;
                 }
                 String server = args[0];
-                // TODO Synchronize server list across all servers instead of doing this
+                // TODO Synchronize server list across all servers instead of
+                // doing this
                 if (server.equalsIgnoreCase("all")) {
                     server = "ALL";
                     sendPlayerList(sender);
@@ -126,6 +127,7 @@ public class NerdList extends JavaPlugin implements Listener {
 
         if (command.getName().equalsIgnoreCase("list-reload")) {
             reloadConfig();
+            sender.sendMessage(ChatColor.GREEN + getName() + " configuration reloaded!");
             return true;
         }
         return false;
@@ -138,24 +140,24 @@ public class NerdList extends JavaPlugin implements Listener {
         FileConfiguration config = getConfig();
         String visibilityString = config.getString("visibility", "ALL").toUpperCase();
         switch (visibilityString) {
-            case "ALL":
-                visibility = 2;
-                break;
-            case "ADMIN":
-                visibility = 1;
-                break;
-            case "NONE":
-                visibility = 0;
-                break;
-            default:
-                getLogger().warning("Invalid visibility '" + visibilityString + "'; defaulting to ALL. Please check " +
-                        "config.yml");
-                visibility = 2;
-                break;
+        case "ALL":
+            visibility = 2;
+            break;
+        case "ADMIN":
+            visibility = 1;
+            break;
+        case "NONE":
+            visibility = 0;
+            break;
+        default:
+            getLogger().warning("Invalid visibility '" + visibilityString + "'; defaulting to ALL. Please check " +
+                                "config.yml");
+            visibility = 2;
+            break;
         }
 
         outputIntro = config.getString("output.intro", "Online players:");
-        outputLabel = config.getString("output.label", "§6%s: ");
+        outputLabel = config.getString("output.label", "&6%s: ");
         outputListColors = new ArrayList<ChatColor>();
         for (String color : config.getStringList("output.list.colors")) {
             try {
@@ -165,7 +167,7 @@ public class NerdList extends JavaPlugin implements Listener {
             }
         }
         outputListDelimiter = config.getString("output.list.delimiter", " ");
-        outputCount = config.getString("outputCount", "§7Total:§f %d players");
+        outputCount = config.getString("output.count", "&6Total:&f %d players");
         displayGroups = new LinkedList<ListGroup>();
         for (Map group : config.getMapList("groups")) {
             try {
@@ -192,7 +194,7 @@ public class NerdList extends JavaPlugin implements Listener {
                 }
             } catch (Exception e) {
                 getLogger().warning("An error occurred while reading your player configuration file. Please check "
-                        + "players.yml");
+                                    + "players.yml");
             }
         }
 
@@ -226,20 +228,20 @@ public class NerdList extends JavaPlugin implements Listener {
     /**
      * Formats a player list as a list of messages.
      *
-     * @param list the player list
+     * @param list   the player list
      * @param server the server this list is from
      * @return a list of message strings
      */
     public List<String> toMessageList(Map<?, Collection<String>> list, String server) {
         List<String> messages = new LinkedList<String>();
         int count = 0;
-        messages.add(String.format(outputIntro, server));
+        messages.add(format(outputIntro, server));
         for (Map.Entry<?, Collection<String>> group : list.entrySet()) {
             Collection<String> players = group.getValue();
             count += players.size();
             if (!players.isEmpty()) {
                 StringBuilder line = new StringBuilder();
-                line.append(String.format(outputLabel, group.getKey().toString()));
+                line.append(format(outputLabel, group.getKey().toString()));
                 int index = 0;
                 for (String player : players) {
                     line.append(outputListColors.get(index % outputListColors.size()));
@@ -252,7 +254,7 @@ public class NerdList extends JavaPlugin implements Listener {
                 messages.add(line.toString());
             }
         }
-        messages.add(String.format(outputCount, count));
+        messages.add(format(outputCount, count));
         return messages;
     }
 
@@ -260,7 +262,7 @@ public class NerdList extends JavaPlugin implements Listener {
      * Sends the list to the given player as a message.
      *
      * @param player the player
-     * @param list the player list
+     * @param list   the player list
      * @param server the server this list is from
      */
     public synchronized void sendMessageList(CommandSender player, Map<?, Collection<String>> list, String server) {
@@ -357,6 +359,17 @@ public class NerdList extends JavaPlugin implements Listener {
      */
     public static NerdList getInstance() {
         return NerdList.instance;
+    }
+
+    /**
+     * Format a message and translate colour codes.
+     *
+     * @param format the string format, which may include &c colour codes.
+     * @param args   substitution arguments to String.format().
+     * @return the translated, formatted string.
+     */
+    public String format(String format, Object... args) {
+        return ChatColor.translateAlternateColorCodes('&', String.format(format, args));
     }
 
     @EventHandler(priority = EventPriority.MONITOR)

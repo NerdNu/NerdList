@@ -5,11 +5,13 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>nu.nerd</groupId>
     <artifactId>nerdlist</artifactId>
-    <version>0.2</version>
+    <version>0.3.0</version>
     <name>NerdList</name>
     <description>Provides a configurable /list command that works across multiple servers.</description>
     <url>https://github.com/NerdNu/NerdList</url>
+
     <build>
+        <defaultGoal>clean package</defaultGoal>
         <sourceDirectory>${basedir}/src</sourceDirectory>
         <resources>
             <resource>
@@ -32,17 +34,19 @@
             </plugin>
         </plugins>
     </build>
+
     <repositories>
         <repository>
-            <id>bukkit-repo</id>
-            <url>http://repo.bukkit.org/content/groups/public</url>
+            <id>spigot-repo</id>
+            <url>https://hub.spigotmc.org/nexus/content/groups/public/</url>
         </repository>
     </repositories>
+
     <dependencies>
         <dependency>
-            <groupId>org.bukkit</groupId>
-            <artifactId>bukkit</artifactId>
-            <version>1.8.3-R0.1-SNAPSHOT</version>
+            <groupId>org.spigotmc</groupId>
+            <artifactId>spigot-api</artifactId>
+            <version>1.13-R0.1-SNAPSHOT</version>
         </dependency>
     </dependencies>
 </project>
